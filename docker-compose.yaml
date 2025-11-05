@@ -1,0 +1,59 @@
+# docker-compose.yaml
+
+version: '3.8'
+
+name: fastapi-todo-app
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.local
+    depends_on:
+      - db
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./:/app
+  db:
+    image: postgres:18
+    environment:
+      POSTGRES_USER: todo_user
+      POSTGRES_PASSWORD: todo_password
+      POSTGRES_DB: todo_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql
+  keycloak_db:
+    image: postgres:18
+    container_name: keycloak-db
+    environment:
+      POSTGRES_USER: keycloak_user
+      POSTGRES_PASSWORD: keycloak_password
+      POSTGRES_DB: keycloak_db
+    ports:
+      - "5433:5432"
+    volumes:
+      - keycloak_pgdata:/var/lib/postgresql
+  keycloak:
+    image: quay.io/keycloak/keycloak:21.1.1
+    environment:
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://keycloak_db:5432/keycloak_db
+      KC_DB_USERNAME: keycloak_user
+      KC_DB_PASSWORD: keycloak_password
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin_password
+      KC_HTTP_ENABLED: true
+      KC_HOSTNAME_STRICT: false
+      KC_HOSTNAME_STRICT_SSL: false
+    ports:
+      - "8080:8080"
+    command: ["start-dev"]
+    depends_on:
+      - keycloak_db
+
+volumes:
+  pgdata:
+  keycloak_pgdata:
