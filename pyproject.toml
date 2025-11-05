@@ -9,6 +9,7 @@ dependencies = [
     "fastapi[standard]>=0.120.1",
     "psycopg2-binary>=2.9.11",
     "pydantic>=2.12.3",
+    "pyjwt[crypto]>=2.10.1",
     "python-dotenv>=1.2.1",
     "sqlalchemy>=2.0.44",
 ]
